@@ -1,0 +1,10 @@
+﻿  Main.cpp
+d:\otherprogram\github\opengl\opengldemo\opengl\main.cpp(79): warning C4996: 'getcwd': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _getcwd. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\direct.h(94): note: 参见“getcwd”的声明
+d:\otherprogram\github\opengl\opengldemo\opengl\main.cpp(80): warning C4996: 'getcwd': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _getcwd. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\direct.h(94): note: 参见“getcwd”的声明
+d:\otherprogram\github\opengl\opengldemo\opengl\main.cpp(82): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\string.h(90): note: 参见“strcat”的声明
+d:\otherprogram\github\opengl\opengldemo\opengl\main.cpp(83): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\string.h(90): note: 参见“strcat”的声明
+  OpenGl.vcxproj -> D:\OtherProgram\GitHub\OpenGL\OpenGLDemo\Debug\OpenGl.exe
