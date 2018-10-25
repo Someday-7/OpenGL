@@ -6,6 +6,7 @@
 #include <QKeyEvent>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
+#include <QTimer>
 class MyOpenGL : public QOpenGLWidget
 {
     Q_OBJECT
@@ -16,13 +17,18 @@ public:
 signals:
 
 public slots:
+private slots:
+    void slot_Update();
 protected:
     void initializeGL();
     void paintGL();
     void resizeGL(int w, int h);
     void keyPressEvent(QKeyEvent *event);
 private:
+    QTimer* m_UpdateTimer;
     bool m_FullScreen;
+    GLfloat m_VTri;
+    GLfloat m_VQuad;
 };
 
 

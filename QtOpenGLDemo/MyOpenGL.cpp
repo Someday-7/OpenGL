@@ -6,11 +6,16 @@ MyOpenGL::MyOpenGL(QWidget *parent) : QOpenGLWidget(parent)
     setGeometry(0,0,640,480);
     //setCaption("My OpenGL Demo!"); //已经废弃
     setWindowTitle("My OpenGL Demo!");
+    m_VTri = 0.0;
+    m_VQuad = 0.0;
+    m_UpdateTimer = new QTimer;
+    m_UpdateTimer->setInterval(50);
+    connect(m_UpdateTimer,SIGNAL(timeout()),this,SLOT(slot_Update()));
 }
 
 MyOpenGL::~MyOpenGL()
 {
-
+    m_UpdateTimer->deleteLater();
 }
 
 void MyOpenGL::initializeGL()
@@ -23,6 +28,7 @@ void MyOpenGL::initializeGL()
     glDepthFunc(GL_LEQUAL);//所做深度测试的类型
     //真正精细的透视修正。这一行告诉OpenGL我们希望进行最好的透视修正。这会十分轻微的影响性能。但使得透视图看起来好一点
     glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);
+    m_UpdateTimer->start();
 }
 
 //这个函数中包括了所有的绘图代码
@@ -31,8 +37,13 @@ void MyOpenGL::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//清除屏幕和深度缓存
     glLoadIdentity();//重置当前的模型观察矩阵
     glTranslatef( -1.5,  0.0, -6.0 );//glTranslatef(x, y, z)沿着 X, Y 和 Z 轴移动
-    //------画三角形--------------
-    glBegin( GL_TRIANGLES );//开始绘制三角形。
+    //glRotatef( Angle, Xvector, Yvector, Zvector )
+    //负责让对象绕某个轴旋转,Angle 通常是个变量代表对象转过的角度。Xvector，Yvector和Zvector三个参数则共同决定旋转轴的方向。
+    //比如( 1, 0, 0 )所描述的矢量经过X坐标轴的1个单位处并且方向向右。( -1, 0, 0 )所描述的矢量经过X坐标轴的1个单位处，但方向向左。
+    glRotatef( m_VTri,  0.0,  1.0,  0.0 );
+ //------画三角形-椎体--------------
+    glBegin( GL_TRIANGLES );//开始绘制三角形。并不会将四点画成一个四边形，而是假定新的三角形开始了
+
     //1、如果要画第二个三角形的话，可以在这三点之后，再加三行代码(3点)。
     //所有六点代码都应包含在glBegin(GL_TRIANGLES)和glEnd()之间。
     //在他们之间再不会有多余的点出现，也就是说，(GL_TRIANGLES)和glEnd()之间的点都是以三点为一个集合的。
@@ -41,23 +52,105 @@ void MyOpenGL::paintGL()
     //2、这里要注意的是存在两种不同的坐标变换方式，glTranslatef(x, y, z)中的x, y, z是相对与您当前所在点的位移，
     //但glVertex(x,y,z)是相对于glTranslatef(x, y, z)移动后的新原点的位移。
     //因而这里可以认为glTranslate移动的是坐标原点，glVertex中的点是相对最新的坐标原点的坐标值。
+    //逆时针
+    glColor3f( 1.0, 0.0, 0.0 );//红色
     glVertex3f(  0.0,  1.0,  0.0 );//上顶点
-    glVertex3f( -1.0, -1.0,  0.0 );//左下顶点
-    glVertex3f(  1.0, -1.0,  0.0 );//右下顶点
-    glEnd();//三角形绘制结束
+    glColor3f( 0.0, 1.0, 0.0 );
+    glVertex3f( -1.0, -1.0,  1.0 );//左下顶点
+    glColor3f( 0.0, 0.0, 1.0 );
+    glVertex3f(  1.0, -1.0,  1.0 );//右下顶点
 
-    //------画四边形--------------
+    glColor3f( 1.0, 0.0, 0.0 );
+    glVertex3f(  0.0,  1.0,  0.0 );
+    glColor3f( 0.0, 1.0, 0.0 );
+    glVertex3f( -1.0, -1.0,  1.0 );
+    glColor3f( 0.0, 0.0, 1.0 );
+    glVertex3f(  1.0, -1.0,  1.0 );
+
+    glColor3f( 1.0, 0.0, 0.0 );
+    glVertex3f(  0.0,  1.0,  0.0 );//上顶点
+    glColor3f( 0.0, 0.0, 1.0 );
+    glVertex3f(  1.0, -1.0,  1.0 );
+    glColor3f( 0.0, 1.0, 0.0 );
+    glVertex3f(  1.0, -1.0, -1.0 );
+
+    glColor3f( 1.0, 0.0, 0.0 );
+    glVertex3f(  0.0,  1.0,  0.0 );//上顶点
+    glColor3f( 0.0, 1.0, 0.0 );
+    glVertex3f(  1.0, -1.0, -1.0 );
+    glColor3f( 0.0, 0.0, 1.0 );
+    glVertex3f( -1.0, -1.0, -1.0 );
+
+    glColor3f( 1.0, 0.0, 0.0 );
+    glVertex3f(  0.0,  1.0,  0.0 );//上顶点
+    glColor3f( 0.0, 0.0, 1.0 );
+    glVertex3f( -1.0, -1.0, -1.0 );
+    glColor3f( 0.0, 1.0, 0.0 );
+    glVertex3f( -1.0, -1.0,  1.0 );
+
+
+    glEnd();//三角形绘制结束
+    //设置当前色之后绘制的所有东东都是当前色的
+    glColor3f( 0, 0.8, 0.5 );
+
+//------画四边形/立方体--------------
     //在屏幕的左半部分画完三角形后，我们要移到右半部分来画正方形。为此要再次使用glTranslate。
     //这次右移，所以X坐标值为正值。因为前面左移了1.5个单位，这次要先向右移回屏幕中心(1.5个单位)，再向右移动1.5个单位。
     //总共要向右移3.0个单位。
-    glTranslatef(  3.0,  0.0,  0.0 );
+    //所有的四边形都以逆时针次序绘制。就是说先画右上角，然后左上角、左下角、最后右下角
+    glLoadIdentity();//重置当前的模型观察矩阵
+    glTranslatef(  1.5,  0.0, -7.0 );
+    glRotatef( m_VQuad,  1.0,  1.0,  1.0 );
+
     glBegin( GL_QUADS );
-    glVertex3f( -1.0,  1.0,  0.0 );//左上顶点
-    glVertex3f(  1.0,  1.0,  0.0 );//右上顶点
-    glVertex3f(  1.0, -1.0,  0.0 );//右下顶点
-    glVertex3f( -1.0, -1.0,  0.0 );//左下顶点
+
+    //立方体的顶面
+    glColor3f( 0, 1.0, 0 );
+    glVertex3f( 1.0,  1.0,  -1.0 );//右上顶点
+    glVertex3f(  -1.0,  1.0,  -1.0 );//左上顶点
+    glVertex3f(  -1.0, 1.0,  1.0 );//左下顶点
+    glVertex3f( 1.0, 1.0,  1.0 );//右下顶点
+
+    //立方体的底面
+    glColor3f( 1.0, 0.5, 0.0 );
+    glVertex3f(  1.0, -1.0,  1.0 );
+    glVertex3f( -1.0, -1.0,  1.0 );
+    glVertex3f( -1.0, -1.0, -1.0 );
+    glVertex3f(  1.0, -1.0, -1.0 );
+
+    //立方体的前面
+    glColor3f( 1.0, 0.0, 0.0 );
+    glVertex3f(  1.0,  1.0,  1.0 );
+    glVertex3f( -1.0,  1.0,  1.0 );
+    glVertex3f( -1.0, -1.0,  1.0 );
+    glVertex3f(  1.0, -1.0,  1.0 );
+
+    //立方体后面
+    glColor3f( 1.0, 1.0, 0.0 );
+    glVertex3f(  1.0, -1.0, -1.0 );
+    glVertex3f( -1.0, -1.0, -1.0 );
+    glVertex3f( -1.0,  1.0, -1.0 );
+    glVertex3f(  1.0,  1.0, -1.0 );
+
+    //左侧面
+    glColor3f( 0.0, 0.0, 1.0 );
+    glVertex3f( -1.0,  1.0,  1.0 );
+    glVertex3f( -1.0,  1.0, -1.0 );
+    glVertex3f( -1.0, -1.0, -1.0 );
+    glVertex3f( -1.0, -1.0,  1.0 );
+
+    //右侧面
+    glColor3f( 1.0, 0.0, 1.0 );
+    glVertex3f(  1.0,  1.0, -1.0 );
+    glVertex3f(  1.0,  1.0,  1.0 );
+    glVertex3f(  1.0, -1.0,  1.0 );
+    glVertex3f(  1.0, -1.0, -1.0 );
+
     glEnd();
-    //------上色--------------
+
+    m_VTri += 10.0;
+    m_VQuad -= 2.0;
+
 }
 
 void MyOpenGL::resizeGL(int w, int h)
@@ -85,6 +178,11 @@ void MyOpenGL::MyPerspective( GLdouble fov, GLdouble aspectRatio, GLdouble zNear
                -zNear * tan( rFov / 2.0 ), zNear * tan( rFov / 2.0 ),
                zNear,
                zFar );
+}
+
+void MyOpenGL::slot_Update()
+{
+    update();
 }
 
 void MyOpenGL::keyPressEvent(QKeyEvent *event)
