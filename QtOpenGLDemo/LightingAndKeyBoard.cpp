@@ -138,7 +138,7 @@ void LightingAndKeyBoard::MyPerspective( GLdouble fov, GLdouble aspectRatio, GLd
 void LightingAndKeyBoard::LoadGLTextures()
 {
     QImage image;
-    if(!image.load(QCoreApplication::applicationDirPath() + "/images/box.jpg"))
+    if(!image.load(QCoreApplication::applicationDirPath() + "/images/Create.jpg"))
     {
         qWarning("Load Images Failed!");
     }
