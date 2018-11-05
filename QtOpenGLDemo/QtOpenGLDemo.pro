@@ -7,6 +7,10 @@
 QT       += core gui
 QT       += opengl
 LIBS     +=-lopengl32 -lglu32
+
+INCLUDEPATH += -I$$PWD/glut/include
+LIBS    += -L$$PWD/glut/lib -lglew32 -lglew32s -lglut -lglut32
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = QtOpenGLDemo
@@ -27,11 +31,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    MyOpenGL.cpp
+    MyOpenGL.cpp \
+    LightingAndKeyBoard.cpp
 
 HEADERS += \
         mainwindow.h \
-    MyOpenGL.h
+    MyOpenGL.h \
+    LightingAndKeyBoard.h
 
 FORMS += \
         mainwindow.ui

@@ -8,6 +8,9 @@ MyOpenGL::MyOpenGL(QWidget *parent) : QOpenGLWidget(parent)
     setWindowTitle("My OpenGL Demo!");
     m_VTri = 0.0;
     m_VQuad = 0.0;
+    m_XRot = 0.0;
+    m_YRot = 0.0;
+    m_ZRot = 0.0;
     m_UpdateTimer = new QTimer;
     m_UpdateTimer->setInterval(50);
     connect(m_UpdateTimer,SIGNAL(timeout()),this,SLOT(slot_Update()));
@@ -16,10 +19,14 @@ MyOpenGL::MyOpenGL(QWidget *parent) : QOpenGLWidget(parent)
 MyOpenGL::~MyOpenGL()
 {
     m_UpdateTimer->deleteLater();
+    glDeleteTextures(1,&m_Texture[0]);
 }
 
 void MyOpenGL::initializeGL()
 {
+    //添加纹理
+    LoadGLTextures();
+
     glShadeModel(GL_SMOOTH);//阴影平滑
     glClearColor(0.0f,0.0f,0.0f,0.0f);//颜色值范围从0到1.0 RGBA
     //深度缓存 将深度缓存设想为屏幕后面的层，深度缓存不断的对物体进入屏幕内部有多深，进行跟踪排序决定那个物体先画
@@ -36,6 +43,7 @@ void MyOpenGL::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//清除屏幕和深度缓存
     glLoadIdentity();//重置当前的模型观察矩阵
+#if ENABLE_TRIANGLES_3D_MODEL
     glTranslatef( -1.5,  0.0, -6.0 );//glTranslatef(x, y, z)沿着 X, Y 和 Z 轴移动
     //glRotatef( Angle, Xvector, Yvector, Zvector )
     //负责让对象绕某个轴旋转,Angle 通常是个变量代表对象转过的角度。Xvector，Yvector和Zvector三个参数则共同决定旋转轴的方向。
@@ -150,7 +158,75 @@ void MyOpenGL::paintGL()
 
     m_VTri += 10.0;
     m_VQuad -= 2.0;
+#endif
+#if ENABLE_TEXTURE_MODEL
+    glTranslatef(0.0f, 0.0f, -5.0f);                    //移入屏幕5.0单位
+    glRotatef(m_XRot, 1.0f, 0.0f, 0.0f);                //绕x轴旋转
+    glRotatef(m_YRot, 0.0f, 1.0f, 0.0f);                //绕y轴旋转
+    glRotatef(m_ZRot, 0.0f, 0.0f, 1.0f);                //绕z轴旋转
 
+    glBindTexture(GL_TEXTURE_2D, m_Texture[0]);            //选择纹理
+    glBegin(GL_QUADS);                                  //开始绘制立方体
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(1.0f, 1.0f, -1.0f);                  //右上(顶面)
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(-1.0f, 1.0f, -1.0f);                 //左上(顶面)
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(-1.0f, 1.0f, 1.0f);                  //左下(顶面)
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3f(1.0f, 1.0f, 1.0f);                   //右下(顶面)
+
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(1.0f, -1.0f, 1.0f);                  //右上(底面)
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3f(-1.0f, -1.0f, 1.0f);                 //左上(底面)
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(-1.0f, -1.0f, -1.0f);                //左下(底面)
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(1.0f, -1.0f, -1.0f);                 //右下(底面)
+
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(1.0f, 1.0f, 1.0f);                   //右上(前面)
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(-1.0f, 1.0f, 1.0f);                  //左上(前面)
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(-1.0f, -1.0f, 1.0f);                 //左下(前面)
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3f(1.0f, -1.0f, 1.0f);                  //右下(前面)
+
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(1.0f, -1.0f, -1.0f);                 //右上(后面)
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3f(-1.0f, -1.0f, -1.0f);                //左上(后面)
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(-1.0f, 1.0f, -1.0f);                 //左下(后面)
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(1.0f, 1.0f, -1.0f);                  //右下(后面)
+
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(-1.0f, 1.0f, 1.0f);                  //右上(左面)
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(-1.0f, 1.0f, -1.0f);                 //左上(左面)
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(-1.0f, -1.0f, -1.0f);                //左下(左面)
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3f(-1.0f, -1.0f, 1.0f);                 //右下(左面)
+
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(1.0f, 1.0f, -1.0f);                  //右上(右面)
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(1.0f, 1.0f, 1.0f);                   //左上(右面)
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(1.0f, -1.0f, 1.0f);                  //左下(右面)
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3f(1.0f, -1.0f, -1.0f);                 //右下(右面)
+    glEnd();                                            //立方体绘制结束
+
+    m_XRot += 0.6f;                                     //x轴旋转
+    m_YRot += 0.4f;                                     //y轴旋转
+    m_ZRot += 0.8f;                                     //z轴旋转
+
+#endif
 }
 
 void MyOpenGL::resizeGL(int w, int h)
@@ -178,6 +254,28 @@ void MyOpenGL::MyPerspective( GLdouble fov, GLdouble aspectRatio, GLdouble zNear
                -zNear * tan( rFov / 2.0 ), zNear * tan( rFov / 2.0 ),
                zNear,
                zFar );
+}
+
+void MyOpenGL::LoadGLTextures()
+{
+    glGenTextures(1, &m_Texture[0]);
+    glBindTexture(GL_TEXTURE_2D, m_Texture[0]);
+
+    QImage image;
+    if(!image.load(QCoreApplication::applicationDirPath() + "/images/texture_1.bmp"))
+    {
+        qWarning("Load Images Failed!");
+    }
+    //QImage 坐标系左上角为（0,0） OpenGL坐标系左下角（0,0）
+    image = image.mirrored();//OpenGL的坐标系和QImage不一致，
+    //数字零代表图像的详细程度，通常就由它为零去了。数字三是数据的成分数。因为图像是由红色数据，绿色数据，蓝色数据三种组分组成。
+    //tex.width()是纹理的宽度。tex.height()是纹理的高度。数字零是边框的值，一般就是零。
+    //GL_BGRA 告诉OpenGL图像数据由蓝、绿、红三色数据以及alpha通道数据组成，BMP JPG保存图片是BGR排列的
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, image.width(), image.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    glEnable(GL_TEXTURE_2D);//启用纹理映射
 }
 
 void MyOpenGL::slot_Update()
