@@ -15,6 +15,7 @@ LightingAndKeyBoard::LightingAndKeyBoard(QWidget *parent) : QOpenGLWidget(parent
     m_YSpeed = 0.0;
     m_Filter = 0;
     m_Light = false;
+    m_Blend = true;
     m_UpdateTimer = new QTimer;
     m_UpdateTimer->setInterval(50);
     connect(m_UpdateTimer,SIGNAL(timeout()),this,SLOT(slot_Update()));
@@ -45,14 +46,18 @@ void LightingAndKeyBoard::initializeGL()
     //最后，我们启用一号光源。我们还没有启用GL_LIGHTING，所以您看不见任何光线。记住：只对光源进行设置、定位、甚至启用，光源都不会工作。除非我们启用GL_LIGHTING。
 
     //创建光源的过程和颜色的创建完全一致。前三个参数分别是RGB三色分量，最后一个是alpha通道参数
-    GLfloat lightAmbient[4] = { 1, 1, 1, 1 };//环境光
-    GLfloat lightDiffuse[4] = { 0.5, 0.5, 0.5, 0.5 };//漫反射光
+    GLfloat lightAmbient[4] = { 0.5, 0.5,0.5, 1 };//环境光
+    GLfloat lightDiffuse[4] = { 1, 1, 1, 1 };//漫反射光
     GLfloat lightPosition[4] = { 0.0, 0.0, 2.0, 1.0 };
     glLightfv( GL_LIGHT1, GL_AMBIENT, lightAmbient );
     glLightfv( GL_LIGHT1, GL_DIFFUSE, lightDiffuse );
     glLightfv( GL_LIGHT1, GL_POSITION, lightPosition );
     glEnable(GL_LIGHT1);
-    glEnable( GL_LIGHTING );
+
+    glColor4f( 1.0, 1.0, 1.0, 0.5 );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+    glEnable( GL_BLEND );
+    glDisable( GL_DEPTH_TEST );
     m_UpdateTimer->start();
 }
 
@@ -138,7 +143,7 @@ void LightingAndKeyBoard::MyPerspective( GLdouble fov, GLdouble aspectRatio, GLd
 void LightingAndKeyBoard::LoadGLTextures()
 {
     QImage image;
-    if(!image.load(QCoreApplication::applicationDirPath() + "/images/Create.jpg"))
+    if(!image.load(QCoreApplication::applicationDirPath() + "/images/Glass.jpg"))
     {
         qWarning("Load Images Failed!");
     }
@@ -198,6 +203,22 @@ void LightingAndKeyBoard::keyPressEvent(QKeyEvent *event)
           }
           update();
           break;
+    case Qt::Key_B:
+        {
+          m_Blend = !m_Blend;
+          if ( m_Blend )
+          {
+            glEnable( GL_BLEND );
+            glDisable( GL_DEPTH_TEST );
+          }
+          else
+          {
+            glDisable( GL_BLEND );
+            glEnable( GL_DEPTH_TEST );
+          }
+          paintGL();
+        }
+      break;
         case Qt::Key_F://按下了F键，就可以转换一下所使用的纹理（就是变换了纹理滤波方式的纹理）。
           m_Filter += 1;;
           if ( m_Filter > 2 )
@@ -245,6 +266,8 @@ void LightingAndKeyBoard::keyPressEvent(QKeyEvent *event)
           break;
         case Qt::Key_Escape:
           close();
+    default:
+        break;
     }
 
 }
