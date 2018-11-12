@@ -32,12 +32,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     MyOpenGL.cpp \
-    LightingAndKeyBoard.cpp
+    LightingAndKeyBoard.cpp \
+    ImageIn3DMovement.cpp
 
 HEADERS += \
         mainwindow.h \
     MyOpenGL.h \
-    LightingAndKeyBoard.h
+    LightingAndKeyBoard.h \
+    ImageIn3DMovement.h
 
 FORMS += \
         mainwindow.ui

@@ -2,6 +2,7 @@
 #include <QApplication>
 #include "MyOpenGL.h"
 #include "LightingAndKeyBoard.h"
+#include "ImageIn3DMovement.h"
 #define ENABLE_WHICH_DEMO 2
 int main(int argc, char *argv[])
 {
@@ -17,6 +18,10 @@ int main(int argc, char *argv[])
     LightingAndKeyBoard LightingAndKeyBoardObj;
     LightingAndKeyBoardObj.setFocusPolicy(Qt::StrongFocus);
     w.setCentralWidget(&LightingAndKeyBoardObj);
+#elif (ENABLE_WHICH_DEMO==3)
+    ImageIn3DMovement ImageIn3DMovementObj;
+    ImageIn3DMovementObj.setFocusPolicy(Qt::StrongFocus);
+    w.setCentralWidget(&ImageIn3DMovementObj);
 #endif
     w.show();
     return a.exec();
